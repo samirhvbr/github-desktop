@@ -1,33 +1,28 @@
-# Configuração Claude Code — GitHub Desktop
+# Claude Code configuration — GitHub Desktop
 
-Config do projeto (fork `samirhvbr/GITHUB_DESKTOP`). Stack: **TypeScript / Electron**, build com **yarn** (Node 24).
+Project config (fork `samirhvbr/GITHUB_DESKTOP`). Stack: **TypeScript / Electron**, built with **yarn** (Node 24).
 
-## Arquivos
+## Files
 
-| Arquivo | Papel |
-|---------|-------|
-| `settings.json` | Perfil **ativo** (versionado). Hoje = Opus-only. |
-| `settings.local.json` | Override local (gitignored). Acumula `allow` por sessão e **tem precedência** sobre o `settings.json`. |
-| `json-opus` | Template stand-by — Opus-only (cópia do ativo). |
-| `json-fable5-opus` | Template stand-by — Fable 5 + fallback Opus. |
-| `json-fable5-opus-sonnet` | Template stand-by — Fable 5 + fallback Opus → Sonnet. |
+| File | Role |
+|------|------|
+| `settings.json` | **Active** profile (versioned). Permissions and effort — it does not choose the model. |
+| `settings.local.json` | Local override (gitignored). Accumulates `allow` per session and **takes precedence** over `settings.json`. |
 
-**Trocar de perfil:** copie o template por cima do ativo e reinicie o Claude Code.
+## Model — the user's choice, never the repository's
 
-```bash
-cp json-fable5-opus settings.json   # ex.: passa a usar Fable 5
-```
+The model is chosen by the user with `/model`, per session, and a subagent inherits the
+session's model. Nothing in this repository chooses it: `settings.json` carries no
+`model`, `fallbackModel` or `availableModels`, and no `ANTHROPIC_MODEL`,
+`ANTHROPIC_DEFAULT_*_MODEL` or `CLAUDE_CODE_SUBAGENT_MODEL` in its `env`. The stand-by
+profiles that used to be copied over `settings.json` to swap models are gone, because
+`/model` is what switches a model (repodocs ADR-027).
 
-## Modelo (todos os perfis)
+- **Effort `max` via the** `CLAUDE_CODE_EFFORT_LEVEL` **env var** — the JSON `effortLevel` field only accepts `low/medium/high/xhigh`, so `max` there is ignored.
 
-- **Effort `max` via env** `CLAUDE_CODE_EFFORT_LEVEL` — o campo `effortLevel` do JSON só aceita `low/medium/high/xhigh`, então `max` por lá é ignorado.
-- **1M nativo** no Opus 4.8 e no Fable 5 (API Anthropic), sem flag.
-- Opus: adaptive thinking OFF. Fable 5: thinking sempre adaptativo (o flag não tem efeito).
-- **Fable 5 / créditos:** incluso no Max até ~22/jun/2026; depois consome créditos (~2× o Opus). Requer Claude Code v2.1.170+.
-
-## Permissões (mesmo bloco em todos os perfis)
+## Permissions
 
 - `defaultMode: plan`.
-- **deny:** `rm -rf`, `git push --force/-f`, `git reset --hard`, `git clean -fd`, `curl|sh`/`wget|sh`, leitura de `.env*` e `*.pem`.
-- **ask (confirma):** `sudo`, `git push`, `yarn add/remove/upgrade`, `yarn clean-slate`, `yarn rebuild-hard`.
-- **allow:** read/edit/write, git read-only + `add`/`commit`, `yarn install/lint/prettier/markdownlint/test/compile/build/start/cli`, validações (`validate-changelog`, `validate-electron-version`, `validate-macos-version`), `node -c`, `npx tsc`.
+- **deny:** `rm -rf`, `git push --force/-f`, `git reset --hard`, `git clean -fd`, `curl|sh`/`wget|sh`, reading `.env*` and `*.pem`.
+- **ask (confirms):** `sudo`, `git push`, `yarn add/remove/upgrade`, `yarn clean-slate`, `yarn rebuild-hard`.
+- **allow:** read/edit/write, read-only git + `add`/`commit`, `yarn install/lint/prettier/markdownlint/test/compile/build/start/cli`, validations (`validate-changelog`, `validate-electron-version`, `validate-macos-version`), `node -c`, `npx tsc`.
